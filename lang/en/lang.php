@@ -5,12 +5,10 @@
  * @author Szymon Olewniczak <dokuwiki@cosmocode.de>
  */
 
-// menu entry for admin plugins
-// $lang['menu'] = 'Your menu entry';
+$lang['header filename'] = 'Name';
+$lang['header filesize'] = 'Size';
+$lang['header filedate'] = 'Date';
 
-// custom language strings for the plugin
-// $lang['fixme'] = 'FIXME';
-
-
+$lang['files_in_namespace'] = 'Files in namespace <span>%s</span>';
 
 //Setup VIM: ex: et ts=4 :

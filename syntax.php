@@ -14,19 +14,19 @@ class syntax_plugin_filelisting extends DokuWiki_Syntax_Plugin {
      * @return string Syntax mode type
      */
     public function getType() {
-        return 'FIXME: container|baseonly|formatting|substition|protected|disabled|paragraphs';
+        return 'substition';
     }
     /**
      * @return string Paragraph type
      */
     public function getPType() {
-        return 'FIXME: normal|block|stack';
+        return 'block';
     }
     /**
      * @return int Sort order - Low numbers go before high numbers
      */
     public function getSort() {
-        return FIXME;
+        return 13;
     }
 
     /**
@@ -35,13 +35,8 @@ class syntax_plugin_filelisting extends DokuWiki_Syntax_Plugin {
      * @param string $mode Parser mode
      */
     public function connectTo($mode) {
-        $this->Lexer->addSpecialPattern('<FIXME>',$mode,'plugin_filelisting');
-//        $this->Lexer->addEntryPattern('<FIXME>',$mode,'plugin_filelisting');
+        $this->Lexer->addSpecialPattern('{{filelisting}}',$mode,'plugin_filelisting');
     }
-
-//    public function postConnect() {
-//        $this->Lexer->addExitPattern('</FIXME>','plugin_filelisting');
-//    }
 
     /**
      * Handle matches of the filelisting syntax
@@ -69,6 +64,10 @@ class syntax_plugin_filelisting extends DokuWiki_Syntax_Plugin {
     public function render($mode, Doku_Renderer $renderer, $data) {
         if($mode != 'xhtml') return false;
 
+        /** @var helper_plugin_filelisting $hlp */
+        $hlp = plugin_load('helper', 'filelisting');
+
+        $renderer->doc .= $hlp->tpl_filelisting(false);
         return true;
     }
 }
