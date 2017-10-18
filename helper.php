@@ -30,11 +30,13 @@ class helper_plugin_filelisting extends DokuWiki_Plugin {
         }
 
         $ret = '<div class="plugin__filelisting">';
-        $ret .= '<table>';
-        $ret .= '<tr>';
-        $ret .= '<td colspan="4">' . sprintf($this->getLang('files_in_namespace'), $ns_string) . '</td>';
-        $ret .= '</tr>';
 
+        $ret .= '<div class="plugin__filelisting_capiton">';
+        $ret .= sprintf($this->getLang('files_in_namespace'), $ns_string);
+        $ret .= '</div>';
+
+        $ret .= '<div class="plugin__filelisting_content">';
+        $ret .= '<table>';
         $ret .= '<tr>';
         $ret .= '<th></th>';
         $ret .= '<th>' . $this->getLang('header filename') .'</th>';
@@ -53,6 +55,8 @@ class helper_plugin_filelisting extends DokuWiki_Plugin {
         }
 
         $ret .= '</table>';
+        $ret .= '</div>';
+
         $ret .= '</div>';
         if ($print) {
             echo $ret;
@@ -86,7 +90,7 @@ class helper_plugin_filelisting extends DokuWiki_Plugin {
             $item['size']  = '—';
             $item['mtime'] = '—';
 
-            $item['link'] = '<a href="'.wl($item['file']. ':start').'">' . $item['file'] . '</a>';
+            $item['link'] = '<a href="'.wl($item['id']. ':start').'">' . $item['file'] . '</a>';
         } else {
             // Prepare fileicons
             list($ext) = mimetype($item['file'],false);

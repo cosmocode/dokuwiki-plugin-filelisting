@@ -5,4 +5,4 @@
  * @author Szymon Olewniczak <dokuwiki@cosmocode.de>
  */
 
-//$conf['fixme']    = 'FIXME';
+$conf['defaulttoggle']    = '1';

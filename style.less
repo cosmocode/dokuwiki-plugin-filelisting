@@ -1,6 +1,19 @@
 .plugin__filelisting {
-    //capiton
-    tr:first-child span {
-        font-weight: bold;
+
+    .plugin__filelisting_capiton {
+        border: 1px solid #ccc;
+        margin-bottom: -1px; //fixed border
+        span {
+            font-weight: bold;
+        }
+    }
+
+    .plugin__filelisting_content {
+        max-height: 100px;
+        overflow: auto;
+
+        table {
+            width: 100%;
+        }
     }
 }
