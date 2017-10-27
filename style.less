@@ -8,12 +8,18 @@
         }
     }
 
+    .plugin__filelisting_filter {
+        border: 1px solid #ccc;
+    }
+
     .plugin__filelisting_content {
         max-height: 200px;
         overflow: auto;
 
         table {
             width: 100%;
+            //reset default dokuwiki margin
+            margin: 0;
 
             //make icons cells stable width
             tr td:first-child {

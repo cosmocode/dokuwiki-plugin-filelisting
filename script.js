@@ -3,6 +3,7 @@
 
     var Filelisting = function(element, options) {
         this.$capiton = $(element).find('.plugin__filelisting_capiton');
+        this.$collapsible = $(element).find('.plugin__filelisting_collapsible');
         this.$content = $(element).find('.plugin__filelisting_content');
 
         this.options = $.extend({}, $.fn.dokuwiki_plugin_filelisting.defaults, options);
@@ -11,6 +12,7 @@
 
         this.initToggleButton();
         this.initAjaxDirectoryExpand();
+        this.initFilter();
     };
 
     Filelisting.prototype.getToggleStatus = function () {
@@ -37,17 +39,17 @@
 
         //by default filelisting is visible
         if (this.getToggleStatus() === 'hidden') {
-            this.$content.hide();
+            this.$collapsible.hide();
             $toggleButton.text(this.options.toggleHidden);
         }
 
         $toggleButton.click($.proxy(function () {
-            if (this.$content.is(':hidden')) {
-                this.$content.slideDown();
+            if (this.$collapsible.is(':hidden')) {
+                this.$collapsible.slideDown();
                 $toggleButton.text(this.options.toggleVisible);
                 this.setToggleStatus('visible');
             } else {
-                this.$content.slideUp();
+                this.$collapsible.slideUp();
                 $toggleButton.text(this.options.toggleHidden);
                 this.setToggleStatus('hidden');
             }
@@ -55,7 +57,9 @@
     };
 
     Filelisting.prototype.initAjaxDirectoryExpand = function() {
-        var options = this.options;
+        //global variables for tr click
+        var options = this.options,
+            $content = this.$content;
         this.$content.find('tbody').on('click', 'tr[data-namespace]', function (event) {
             event.preventDefault();
 
@@ -65,7 +69,7 @@
                 descendents = $(this).nextAll('[data-childOf^="' + namespace + '"]');
 
             //namespace is expanded - hide it
-            if (children.is(':visible')) {
+            if ($(this).data('isExpanded')) {
                 //set icon
                 $(this).children(':first').html(options.dirClosedIcon);
                 //save the state of all expanded sub namespaces to restore it as it was
@@ -76,6 +80,11 @@
                          $(this).data('reopenAs', 'hidden');
                      }
                  }).hide();
+                $(this).data('isExpanded', false);
+
+                //the content has changed
+                $content.trigger('update');
+
             //namespace is hidden and is loaded
             } else if ($(this).data('isLoaded')) {
                 $(this).children(':first').html(options.dirOpenedIcon);
@@ -87,6 +96,11 @@
                         $(this).show();
                     }
                 });
+                $(this).data('isExpanded', true);
+
+                //the content has changed
+                $content.trigger('update');
+
             //namespace isn't loaded
             } else {
                 //loading
@@ -103,10 +117,51 @@
                         $(this).children(':first').html(options.dirOpenedIcon);
                         $(this).after(html);
                         $(this).data('isLoaded', true);
+                        $(this).data('isExpanded', true);
+
+                        //the content has changed
+                        $content.trigger('update');
                     }, this), 'html')
                     .fail(function () {
                         $(this).children(':first').html(options.dirClosedIcon);
                     });
+            }
+        });
+    };
+
+    Filelisting.prototype.initFilter = function() {
+        var $filterContainer = $('<div class="plugin__filelisting_filter">')
+            .appendTo(this.$collapsible),
+            $label = $('<label>').text(this.options.filterLabel + ': ')
+                .appendTo($filterContainer);
+
+        this.$filterInput = $('<input>').appendTo($label);
+
+        //filter has changed, update content
+        this.$filterInput.on('keyup', $.proxy(this.applyFilter, this));
+
+        //bind filtering to content update event
+        this.$content.on('update', $.proxy(this.applyFilter, this));
+    };
+
+    Filelisting.prototype.applyFilter = function() {
+        var filter = this.$filterInput.val(),
+            //escape regex
+            //https://developer.mozilla.org/en-US/docs/Web/JavaScript/Guide/Regular_Expressions#Using_Special_Characters
+            escaped = filter.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'), // $& means the whole matched string
+            globbing = escaped.replace('\\*', '.*').replace('\\?', '.'),
+            regex = new RegExp(globbing);
+
+        //don't filter directories
+        this.$content.find('tbody tr').not('[data-namespace]').each(function () {
+            //text in second column
+            var text = $(this).find('td:eq(1) a').text();
+            if (text.match(regex) && $(this).is(':hidden') && $(this).data('isFiltered')) {
+                $(this).show();
+                $(this).data('isFiltered', false);
+            } else if (!text.match(regex) && $(this).is(':visible')) {
+                $(this).hide();
+                $(this).data('isFiltered', true);
             }
         });
     };
@@ -131,7 +186,8 @@
         //html used as loading icon for ajax call
         loadingIcon: '',
         //namespace of the current wiki page
-        baseNamespace: ''
+        baseNamespace: '',
+        filterLabel: 'Filter'
     };
 
 }(window.jQuery));

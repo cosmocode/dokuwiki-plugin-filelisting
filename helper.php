@@ -35,20 +35,28 @@ class helper_plugin_filelisting extends DokuWiki_Plugin {
         $ret .= sprintf($this->getLang('files_in_namespace'), $ns_string);
         $ret .= '</div>';
 
+        //collapsible is for filter box (added dynamicly by JS)
+        $ret .= '<div class="plugin__filelisting_collapsible">';
         $ret .= '<div class="plugin__filelisting_content">';
         $ret .= '<table>';
+
+        $ret .= '<thead>';
         $ret .= '<tr>';
         $ret .= '<th></th>';
         $ret .= '<th>' . $this->getLang('header filename') .'</th>';
         $ret .= '<th>' . $this->getLang('header filesize') .'</th>';
         $ret .= '<th>' . $this->getLang('header filedate') .'</th>';
         $ret .= '</tr>';
+        $ret .= '</thead>';
 
         $ret .= '<tbody>';
         $ret .= $this->getFilesRows($ns);
         $ret .= '</tbody>';
 
         $ret .= '</table>';
+        $ret .= '</div>';
+
+        //collapsible
         $ret .= '</div>';
 
         $ret .= '</div>';
