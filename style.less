@@ -9,11 +9,18 @@
     }
 
     .plugin__filelisting_content {
-        max-height: 100px;
+        max-height: 200px;
         overflow: auto;
 
         table {
             width: 100%;
+
+            //make icons cells stable width
+            tr td:first-child {
+                width: 16px;
+                min-width: 16px;
+                max-width: 16px;
+            }
         }
     }
 }

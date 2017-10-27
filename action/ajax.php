@@ -19,12 +19,12 @@ class action_plugin_filelisting_ajax extends DokuWiki_Action_Plugin {
      */
     public function register(Doku_Event_Handler $controller) {
 
-       $controller->register_hook('AJAX_CALL_UNKNOWN', 'FIXME', $this, 'handle_ajax_call_unknown');
+       $controller->register_hook('AJAX_CALL_UNKNOWN', 'BEFORE', $this, 'handle_ajax_call_unknown');
    
     }
 
     /**
-     * [Custom event handler which performs action]
+     * Send the namespace files as html table rows
      *
      * @param Doku_Event $event  event object by reference
      * @param mixed      $param  [the parameters passed as fifth argument to register_hook() when this
@@ -33,6 +33,20 @@ class action_plugin_filelisting_ajax extends DokuWiki_Action_Plugin {
      */
 
     public function handle_ajax_call_unknown(Doku_Event &$event, $param) {
+        if($event->data != 'plugin_filelisting') return;
+        $event->preventDefault();
+        $event->stopPropagation();
+
+        global $INPUT;
+
+        $ns = $INPUT->str('namespace');
+        $baseNs = $INPUT->int('baseNamespace');
+        //count level at leat one
+        $lvl = substr_count($ns, ':') - substr_count($baseNs, ':') + 1;
+
+        $filelisting = $this->loadHelper('filelisting');
+
+        echo $filelisting->getFilesRows($ns, $lvl);
     }
 
 }

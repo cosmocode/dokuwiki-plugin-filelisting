@@ -24,7 +24,7 @@ class action_plugin_filelisting_js extends DokuWiki_Action_Plugin {
     }
 
     /**
-     * [Custom event handler which performs action]
+     * Set the JSINFO
      *
      * @param Doku_Event $event  event object by reference
      * @param mixed      $param  [the parameters passed as fifth argument to register_hook() when this
@@ -39,10 +39,16 @@ class action_plugin_filelisting_js extends DokuWiki_Action_Plugin {
         if (!isset($JSINFO['plugin'])) $JSINFO['plugin'] = array();
         $JSINFO['plugin'][$this->getPluginName()] = array('conf' => array());
 
+        //load conf
         $confKeys = array('defaulttoggle');
         foreach ($confKeys as $confKey) {
             $JSINFO['plugin'][$this->getPluginName()]['conf'][$confKey] = $this->getConf($confKey);
         }
+
+        $filelisting = $this->loadHelper('filelisting');
+        $JSINFO['plugin'][$this->getPluginName()]['dirOpenedIcon'] = $filelisting->dirOpenedIcon();
+        $JSINFO['plugin'][$this->getPluginName()]['dirClosedIcon'] = $filelisting->dirClosedIcon();
+        $JSINFO['plugin'][$this->getPluginName()]['loadingIcon'] = $filelisting->loadingIcon();
     }
 
 }

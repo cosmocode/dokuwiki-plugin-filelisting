@@ -10,6 +10,7 @@
         this.storageKey = 'plugin_filelisting/' + this.options.pageId;
 
         this.initToggleButton();
+        this.initAjaxDirectoryExpand();
     };
 
     Filelisting.prototype.getToggleStatus = function () {
@@ -53,6 +54,63 @@
         }, this));
     };
 
+    Filelisting.prototype.initAjaxDirectoryExpand = function() {
+        var options = this.options;
+        this.$content.find('tbody').on('click', 'tr[data-namespace]', function (event) {
+            event.preventDefault();
+
+            var namespace = $(this).data('namespace'),
+                //get all siblings and subsiblings
+                children = $(this).nextAll('[data-childOf="' + namespace + '"]'),
+                descendents = $(this).nextAll('[data-childOf^="' + namespace + '"]');
+
+            //namespace is expanded - hide it
+            if (children.is(':visible')) {
+                //set icon
+                $(this).children(':first').html(options.dirClosedIcon);
+                //save the state of all expanded sub namespaces to restore it as it was
+                descendents.each(function () {
+                     if ($(this).is(':visible')) {
+                         $(this).data('reopenAs', 'visible');
+                     } else {
+                         $(this).data('reopenAs', 'hidden');
+                     }
+                 }).hide();
+            //namespace is hidden and is loaded
+            } else if ($(this).data('isLoaded')) {
+                $(this).children(':first').html(options.dirOpenedIcon);
+                //always open children
+                children.show();
+                //check if we should open any descendents
+                descendents.each(function() {
+                    if ($(this).data('reopenAs') === 'visible') {
+                        $(this).show();
+                    }
+                });
+            //namespace isn't loaded
+            } else {
+                //loading
+                $(this).children(':first').html(options.loadingIcon);
+
+                var data = {};
+
+                data['call'] = 'plugin_filelisting';
+                data['namespace'] = namespace;
+                data['baseNamespace'] = options.baseNamespace;
+
+                $.post(DOKU_BASE + 'lib/exe/ajax.php', data,
+                    $.proxy(function(html) {
+                        $(this).children(':first').html(options.dirOpenedIcon);
+                        $(this).after(html);
+                        $(this).data('isLoaded', true);
+                    }, this), 'html')
+                    .fail(function () {
+                        $(this).children(':first').html(options.dirClosedIcon);
+                    });
+            }
+        });
+    };
+
     $.fn.dokuwiki_plugin_filelisting = function (options) {
         //return jquery object
         return this.each(function() {
@@ -63,8 +121,17 @@
     $.fn.dokuwiki_plugin_filelisting.defaults = {
         toggleVisible: '▼',
         toggleHidden: '▲',
-        pageId: '', //toggle status is global by default
-        defaultToggle: 'visible'
+        //id of the current wiki page
+        pageId: '',
+        defaultToggle: 'visible',
+        //html used as dir open icon
+        dirOpenedIcon: '',
+        //html used as dir close icon
+        dirClosedIcon: '',
+        //html used as loading icon for ajax call
+        loadingIcon: '',
+        //namespace of the current wiki page
+        baseNamespace: ''
     };
 
 }(window.jQuery));
@@ -72,23 +139,26 @@
 jQuery(function() {
 
     //read JSINFO
+    if (JSINFO === undefined) {
+        console.log('filelisting: JSINFO undefined');
+        return;
+    }
     var options = {};
-    try {
-        options.pageId = JSINFO.id;
-    } catch (e) {
-        console.log('filelisting: JSINFO.id undefined');
+
+    options.pageId = JSINFO.id;
+
+    var defaulttoggle = JSINFO.plugin.filelisting.conf.defaulttoggle;
+    if (defaulttoggle === '1') {
+        options.defaultToggle = 'visible';
+    } else {
+        options.defaultToggle = 'hidden';
     }
 
-    try {
-        var defaulttoggle = JSINFO.plugin.filelisting.conf.defaulttoggle;
-        if (defaulttoggle === '1') {
-            options.defaultToggle = 'visible';
-        } else {
-            options.defaultToggle = 'hidden';
-        }
-    } catch (e) {
-        console.log('filelisting: JSINFO.plugin.filelisting.conf.defaulttoggle undefined');
-    }
+    options.dirOpenedIcon = JSINFO.plugin.filelisting.dirOpenedIcon;
+    options.dirClosedIcon = JSINFO.plugin.filelisting.dirClosedIcon;
+    options.loadingIcon = JSINFO.plugin.filelisting.loadingIcon;
+
+    options.baseNamespace = JSINFO.namespace;
 
     jQuery('.plugin__filelisting').dokuwiki_plugin_filelisting(options);
 });

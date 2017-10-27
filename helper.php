@@ -24,7 +24,7 @@ class helper_plugin_filelisting extends DokuWiki_Plugin {
 
         $ns = getNS($ID);
         if ($ns == false) {
-            $ns_string = '[' . $lang[mediaroot] . ']';
+            $ns_string = '[' . $lang['mediaroot'] . ']';
         } else {
             $ns_string = $ns;
         }
@@ -44,15 +44,9 @@ class helper_plugin_filelisting extends DokuWiki_Plugin {
         $ret .= '<th>' . $this->getLang('header filedate') .'</th>';
         $ret .= '</tr>';
 
-        $files = $this->getFiles($ns);
-        foreach ($files as $file) {
-            $ret .= '<tr>';
-            $ret .= '<td>' . $file['icon'] . '</td>';
-            $ret .= '<td>' . $file['link'] . '</td>';
-            $ret .= '<td>' . $file['size'] . '</td>';
-            $ret .= '<td>' . $file['mtime'] . '</td>';
-            $ret .= '</tr>';
-        }
+        $ret .= '<tbody>';
+        $ret .= $this->getFilesRows($ns);
+        $ret .= '</tbody>';
 
         $ret .= '</table>';
         $ret .= '</div>';
@@ -65,6 +59,46 @@ class helper_plugin_filelisting extends DokuWiki_Plugin {
         return $ret;
     }
 
+    /**
+     * Return namespace files as html table rows
+     * @param string    $ns
+     * @param int       $lvl
+     * @return string
+     */
+    public function getFilesRows($ns, $lvl=0) {
+        $files = $this->getFiles($ns);
+        $ret = '';
+        foreach ($files as $file) {
+            if ($file['isdir']) {
+                $ret .= '<tr data-namespace="'.$file['id'].'"';
+            } else {
+                $ret .= '<tr';
+            }
+            //empty $ns means root
+            $ret .= ' data-childOf="'.$ns.'">';
+
+            $ret .= '<td>' . $file['icon'] . '</td>';
+
+            $ret .= '<td>';
+            if ($lvl > 0) {
+                $ret .= '<span style="margin-left: ' . $lvl * 10 . 'px;">↳ </span>';
+            }
+            $ret .= $file['link'];
+            $ret .= '</td>';
+
+            $ret .= '<td>' . $file['size'] . '</td>';
+            $ret .= '<td>' . $file['mtime'] . '</td>';
+            $ret .= '</tr>';
+        }
+        return $ret;
+    }
+
+    /**
+     * Get a list of namespace files
+     *
+     * @param $ns
+     * @return array
+     */
     public function getFiles($ns) {
         global $conf;
 
@@ -78,6 +112,12 @@ class helper_plugin_filelisting extends DokuWiki_Plugin {
         return array_map(array($this, 'fileInfo'), $data);
     }
 
+    /**
+     * Add additional info to search() function result item
+     *
+     * @param $item
+     * @return mixed
+     */
     protected function fileInfo($item) {
 
         // Prepare filename
@@ -85,8 +125,7 @@ class helper_plugin_filelisting extends DokuWiki_Plugin {
 
         //handle directory diffirently
         if (isset($item['isdir'])) {
-            $inlineSVG = inlineSVG(dirname(__FILE__) . '/images/folder.svg');
-            $item['icon'] = $inlineSVG;
+            $item['icon'] = $this->dirClosedIcon();
             $item['size']  = '—';
             $item['mtime'] = '—';
 
@@ -105,6 +144,36 @@ class helper_plugin_filelisting extends DokuWiki_Plugin {
         }
 
         return $item;
+    }
+
+    /**
+     * Html for closed dir icon
+     *
+     * @return false|string
+     */
+    public function dirClosedIcon() {
+        return inlineSVG(dirname(__FILE__) . '/images/folder.svg');
+    }
+
+    /**
+     * Html for opened dir icon
+     *
+     * @return false|string
+     */
+    public function dirOpenedIcon() {
+        return inlineSVG(dirname(__FILE__) . '/images/folder-open.svg');
+    }
+
+    /**
+     * Html for loading icon
+     *
+     * @return string
+     */
+    public function loadingIcon() {
+        $file = dirname(__FILE__) . '/images/loading.gif';
+        $contents = file_get_contents($file);
+        $base64 = base64_encode($contents);
+        return '<img src="data:image/gif;base64,'.$base64.'">';
     }
 
     /**
