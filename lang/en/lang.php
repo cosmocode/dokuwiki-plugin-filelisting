@@ -11,4 +11,6 @@ $lang['header filedate'] = 'Date';
 
 $lang['files_in_namespace'] = 'Files in namespace <span>%s</span>';
 
+$lang['js']['filter_label'] = 'Filter';
+
 //Setup VIM: ex: et ts=4 :

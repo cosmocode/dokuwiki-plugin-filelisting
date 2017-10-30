@@ -13,6 +13,7 @@
         this.initToggleButton();
         this.initAjaxDirectoryExpand();
         this.initFilter();
+        this.initSorting();
     };
 
     Filelisting.prototype.getToggleStatus = function () {
@@ -57,114 +58,218 @@
     };
 
     Filelisting.prototype.initAjaxDirectoryExpand = function() {
-        //global variables for tr click
-        var options = this.options,
-            $content = this.$content;
-        this.$content.find('tbody').on('click', 'tr[data-namespace]', function (event) {
+        //allow click on link
+        this.$content.find('tbody').on('click', 'tr[data-namespace] a', $.proxy(function (event) {
             event.preventDefault();
 
-            var namespace = $(this).data('namespace'),
-                //get all siblings and subsiblings
-                children = $(this).nextAll('[data-childOf="' + namespace + '"]'),
-                descendents = $(this).nextAll('[data-childOf^="' + namespace + '"]');
+            //row and namespace are used in $.post
+            var $row = $(event.target).closest('tr'),
+                namespace = $row.data('namespace');
+
+            //get all siblings and subsiblings
+            var $children = $row.nextAll('[data-childOf="' + namespace + '"]'),
+                $descendants = $row.nextAll('[data-childOf^="' + namespace + '"]');
 
             //namespace is expanded - hide it
-            if ($(this).data('isExpanded')) {
+            if ($row.data('isExpanded')) {
                 //set icon
-                $(this).children(':first').html(options.dirClosedIcon);
+                $row.children(':first').html(this.options.dirClosedIcon);
                 //save the state of all expanded sub namespaces to restore it as it was
-                descendents.each(function () {
+                $descendants.each(function () {
                      if ($(this).is(':visible')) {
                          $(this).data('reopenAs', 'visible');
                      } else {
                          $(this).data('reopenAs', 'hidden');
                      }
                  }).hide();
-                $(this).data('isExpanded', false);
-
-                //the content has changed
-                $content.trigger('update');
+                $row.data('isExpanded', false);
 
             //namespace is hidden and is loaded
-            } else if ($(this).data('isLoaded')) {
-                $(this).children(':first').html(options.dirOpenedIcon);
+            } else if ($row.data('isLoaded')) {
+                $row.children(':first').html(this.options.dirOpenedIcon);
                 //always open children
-                children.show();
+                $children.show();
                 //check if we should open any descendents
-                descendents.each(function() {
+                $descendants.each(function() {
                     if ($(this).data('reopenAs') === 'visible') {
                         $(this).show();
                     }
                 });
-                $(this).data('isExpanded', true);
+                $row.data('isExpanded', true);
 
-                //the content has changed
-                $content.trigger('update');
+                //expand content
+                this.$content.trigger('expand', namespace);
 
             //namespace isn't loaded
             } else {
                 //loading
-                $(this).children(':first').html(options.loadingIcon);
+                $row.children(':first').html(this.options.loadingIcon);
 
                 var data = {};
 
                 data['call'] = 'plugin_filelisting';
                 data['namespace'] = namespace;
-                data['baseNamespace'] = options.baseNamespace;
+                data['baseNamespace'] = this.options.baseNamespace;
 
                 $.post(DOKU_BASE + 'lib/exe/ajax.php', data,
                     $.proxy(function(html) {
-                        $(this).children(':first').html(options.dirOpenedIcon);
-                        $(this).after(html);
-                        $(this).data('isLoaded', true);
-                        $(this).data('isExpanded', true);
+                        $row.children(':first').html(this.options.dirOpenedIcon);
+                        $row.after(html);
+                        $row.data('isLoaded', true);
+                        $row.data('isExpanded', true);
 
-                        //the content has changed
-                        $content.trigger('update');
+                        //trigger nsload then expand
+                        $.when(this.$content.trigger('nsload', namespace))
+                            .then($.proxy(function () {
+                                this.$content.trigger('expand', namespace)
+                            }, this));
                     }, this), 'html')
-                    .fail(function () {
-                        $(this).children(':first').html(options.dirClosedIcon);
-                    });
+                    .fail($.proxy(function () {
+                        $row.children(':first').html(this.options.dirClosedIcon);
+                    }, this));
             }
-        });
+        }, this));
     };
 
     Filelisting.prototype.initFilter = function() {
-        var $filterContainer = $('<div class="plugin__filelisting_filter">')
-            .appendTo(this.$collapsible),
-            $label = $('<label>').text(this.options.filterLabel + ': ')
-                .appendTo($filterContainer);
+        //global filter container
+        this.$filterContainer = $('<div class="plugin__filelisting_filter">')
+            .appendTo(this.$collapsible);
 
-        this.$filterInput = $('<input>').appendTo($label);
+        var $label = $('<label>').text(this.options.filterLabel + ': ')
+                .appendTo(this.$filterContainer),
+            $filterInput = $('<input>').appendTo($label);
 
         //filter has changed, update content
-        this.$filterInput.on('keyup', $.proxy(this.applyFilter, this));
+        $filterInput.on('keyup', $.proxy(this.applyFilter, this));
 
         //bind filtering to content update event
-        this.$content.on('update', $.proxy(this.applyFilter, this));
+        this.$content.on('expand', $.proxy(this.applyFilter, this));
     };
 
     Filelisting.prototype.applyFilter = function() {
-        var filter = this.$filterInput.val(),
+        var filter = this.$filterContainer.find('input').val(),
             //escape regex
             //https://developer.mozilla.org/en-US/docs/Web/JavaScript/Guide/Regular_Expressions#Using_Special_Characters
             escaped = filter.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'), // $& means the whole matched string
-            globbing = escaped.replace('\\*', '.*').replace('\\?', '.'),
-            regex = new RegExp(globbing);
+            globbing = escaped.replace(/\\\*/g, '.*').replace(/\\\?/g, '.'),
+            regex = new RegExp(globbing),
+            $rows = this.$content.find('tbody tr'),
+            $files = $rows.not('[data-namespace]'),
+            $dirs = $rows.not($files),
+            filterCallback = function() {
+                //text in second column
+                var $row = $(this),
+                    text = $row.find('td:eq(1) a').text();
+                if (text.match(regex)) {
+                    $row.show();
+                } else {
+                    $row.hide();
+                }
+            };
 
-        //don't filter directories
-        this.$content.find('tbody tr').not('[data-namespace]').each(function () {
-            //text in second column
-            var text = $(this).find('td:eq(1) a').text();
-            if (text.match(regex) && $(this).is(':hidden') && $(this).data('isFiltered')) {
-                $(this).show();
-                $(this).data('isFiltered', false);
-            } else if (!text.match(regex) && $(this).is(':visible')) {
-                $(this).hide();
-                $(this).data('isFiltered', true);
-            }
+        //files in root namespace are always visible
+        $files.filter('[data-childOf=""]').each(filterCallback);
+
+        //get namespaces
+        $dirs.filter(function() {
+            //only expanded
+            return $(this).data('isExpanded');
+        }).each(function () {
+            var namespace = $(this).data('namespace');
+            $files.filter('[data-childOf="' + namespace + '"]').each(filterCallback);
         });
     };
+
+    Filelisting.prototype.initSorting = function() {
+        //global: current sort header
+        //not defined by default
+        this.$sortHeader = [];
+
+        //create sort links (for styling purposes)
+        this.$content.find('thead th').wrapInner('<a href="#">');
+        //sorting indicator
+        this.$content.find('thead th a').prepend('<span>');
+
+        //options for click
+        this.$content.find('thead th a').on('click', $.proxy(function() {
+            this.$sortHeader = $(event.target).closest('th');
+
+            var $order = this.$sortHeader.find('span');
+            //clear other sorting indicators
+            this.$content.find('thead th').not(this.$sortHeader).find('span').text('');
+
+            //toggle sort ordering
+            if ($order.text() === '' || $order.text() === this.options.sortDesc) {
+                $order.text(this.options.sortAsc);
+            } else {
+                $order.text(this.options.sortDesc);
+            }
+            //perform sorting
+            this.sortBy();
+        }, this));
+
+        //bind sorting to content update event
+        this.$content.on('nsload', $.proxy(function(event, namespace) {
+            this.sortBy(namespace);
+        }, this));
+    };
+
+    Filelisting.prototype.sortBy = function(namespace) {
+        //don't sort where sortHeader not defined
+        if (this.$sortHeader.length === 0) return;
+        //by default sort starts from the base namespace
+        if (namespace === undefined) {
+            namespace = this.options.baseNamespace;
+        }
+
+        var $root = this.$content.find('tbody tr[data-namespace="' + namespace + '"]'),
+            $rows = this.$content.find('tbody tr[data-childOf="' + namespace + '"]'),
+            $files = $rows.not('[data-namespace]'),
+            $dirs = $rows.not($files),
+            sortCallback = $.proxy(function (a, b) {
+                var index = this.$sortHeader.index(),
+                    order = 1; //1 ascending order, -1 descending order
+
+                //check for desc sorting
+                if (this.$sortHeader.find('span').text() === this.options.sortDesc) {
+                    order = -1;
+                }
+
+                var dataA = $(a).find('td').eq(index).data('sort'),
+                    dataB = $(b).find('td').eq(index).data('sort');
+                //$.data automatically converts string to integer when possible
+                if (dataA < dataB) {
+                    return -order;
+                } else if (dataA > dataB) {
+                    return order;
+                }
+                return 0;
+            }, this);
+
+        //sort dirs
+        $dirs.sort(sortCallback);
+        //sort files
+        $files.sort(sortCallback);
+
+        //we are on top level
+        if ($root.length === 0) {
+            this.$content.find('tbody').append($dirs, $files);
+        } else {
+            $root.after($dirs, $files);
+        }
+
+        //attach files to corresponding dirs
+        $dirs.each($.proxy(function(index, element) {
+            var namespace = $(element).data('namespace'),
+                $descendants = $(element).siblings('[data-childOf^="' + namespace + '"]');
+            $descendants.insertAfter(element);
+
+            //sort sub namespaces
+            this.sortBy(namespace);
+        }, this));
+    };
+
 
     $.fn.dokuwiki_plugin_filelisting = function (options) {
         //return jquery object
@@ -174,7 +279,9 @@
     };
 
     $.fn.dokuwiki_plugin_filelisting.defaults = {
+        //label for visible list
         toggleVisible: '▼',
+        //label for hidden list
         toggleHidden: '▲',
         //id of the current wiki page
         pageId: '',
@@ -187,23 +294,28 @@
         loadingIcon: '',
         //namespace of the current wiki page
         baseNamespace: '',
-        filterLabel: 'Filter'
+        //label of filter input
+        filterLabel: 'Filter',
+        //sort ascending label
+        sortAsc: '↓',
+        //sort descending label
+        sortDesc: '↑'
     };
 
 }(window.jQuery));
 
 jQuery(function() {
 
-    //read JSINFO
-    if (JSINFO === undefined) {
-        console.log('filelisting: JSINFO undefined');
+    //read JSINFO and LANG
+    if (JSINFO === undefined || LANG === undefined) {
+        console.log('filelisting: JSINFO or LANG undefined');
         return;
     }
     var options = {};
 
     options.pageId = JSINFO.id;
 
-    var defaulttoggle = JSINFO.plugin.filelisting.conf.defaulttoggle;
+    var defaulttoggle = JSINFO.plugin.filelisting.defaulttoggle;
     if (defaulttoggle === '1') {
         options.defaultToggle = 'visible';
     } else {
@@ -215,6 +327,8 @@ jQuery(function() {
     options.loadingIcon = JSINFO.plugin.filelisting.loadingIcon;
 
     options.baseNamespace = JSINFO.namespace;
+
+    options.filterLabel = LANG.plugins.filelisting.filter_label;
 
     jQuery('.plugin__filelisting').dokuwiki_plugin_filelisting(options);
 });

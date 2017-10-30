@@ -33,24 +33,31 @@ class action_plugin_filelisting_js extends DokuWiki_Action_Plugin {
      */
 
     public function handle_dokuwiki_started(Doku_Event &$event, $param) {
-        global $JSINFO;
-
-        //using metadata convention
-        if (!isset($JSINFO['plugin'])) $JSINFO['plugin'] = array();
-        $JSINFO['plugin'][$this->getPluginName()] = array('conf' => array());
-
         //load conf
-        $confKeys = array('defaulttoggle');
-        foreach ($confKeys as $confKey) {
-            $JSINFO['plugin'][$this->getPluginName()]['conf'][$confKey] = $this->getConf($confKey);
-        }
+        $this->jsinfo('defaulttoggle', $this->getConf('defaulttoggle'));
 
         $filelisting = $this->loadHelper('filelisting');
-        $JSINFO['plugin'][$this->getPluginName()]['dirOpenedIcon'] = $filelisting->dirOpenedIcon();
-        $JSINFO['plugin'][$this->getPluginName()]['dirClosedIcon'] = $filelisting->dirClosedIcon();
-        $JSINFO['plugin'][$this->getPluginName()]['loadingIcon'] = $filelisting->loadingIcon();
+        $this->jsinfo('dirOpenedIcon', $filelisting->dirOpenedIcon());
+        $this->jsinfo('dirClosedIcon', $filelisting->dirClosedIcon());
+        $this->jsinfo('loadingIcon', $filelisting->loadingIcon());
     }
 
+    /**
+     * Add a value to JSINFO['plugin'][plugin name]
+     *
+     * @param      $key
+     * @param      $value
+     */
+    protected function jsinfo($key, $value) {
+        global $JSINFO;
+
+        $pname = $this->getPluginName();
+        //using metadata convention
+        if (!isset($JSINFO['plugin'])) $JSINFO['plugin'] = array();
+        if (!isset($JSINFO['plugin'][$pname])) $JSINFO['plugin'][$pname] = array();
+
+        $JSINFO['plugin'][$pname][$key] = $value;
+    }
 }
 
 // vim:ts=4:sw=4:et:

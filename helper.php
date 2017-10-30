@@ -87,15 +87,20 @@ class helper_plugin_filelisting extends DokuWiki_Plugin {
 
             $ret .= '<td>' . $file['icon'] . '</td>';
 
-            $ret .= '<td>';
+            $ret .= '<td data-sort="' . $file['file'] . '">';
             if ($lvl > 0) {
                 $ret .= '<span style="margin-left: ' . $lvl * 10 . 'px;">↳ </span>';
             }
             $ret .= $file['link'];
             $ret .= '</td>';
 
-            $ret .= '<td>' . $file['size'] . '</td>';
-            $ret .= '<td>' . $file['mtime'] . '</td>';
+            if ($file['isdir']) {
+                $ret .= '<td data-sort=""> — </td>';
+                $ret .= '<td data-sort=""> — </td>';
+            } else {
+                $ret .= '<td data-sort="' . $file['size'] . '">' . filesize_h($file['size']) . '</td>';
+                $ret .= '<td data-sort="' . $file['mtime'] . '">' . dformat($file['mtime']) . '</td>';
+            }
             $ret .= '</tr>';
         }
         return $ret;
@@ -134,8 +139,6 @@ class helper_plugin_filelisting extends DokuWiki_Plugin {
         //handle directory diffirently
         if (isset($item['isdir'])) {
             $item['icon'] = $this->dirClosedIcon();
-            $item['size']  = '—';
-            $item['mtime'] = '—';
 
             $item['link'] = '<a href="'.wl($item['id']. ':start').'">' . $item['file'] . '</a>';
         } else {
@@ -144,9 +147,6 @@ class helper_plugin_filelisting extends DokuWiki_Plugin {
             $class = preg_replace('/[^_\-a-z0-9]+/i','_',$ext);
             $class = 'mf_' . $class;
             $item['icon'] = '<div style="width: 16px; height:16px;" class="' . $class . '"></div>';
-
-            $item['size'] = filesize_h($item['size']);
-            $item['mtime'] = dformat($item['mtime']);
 
             $item['link'] = '<a href="'.ml($item['id']).'" target="_blank">' . $item['file'] . '</a>';
         }
