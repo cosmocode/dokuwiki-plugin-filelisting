@@ -227,6 +227,10 @@
 
         //options for click
         this.$content.find('thead th a').on('click', $.proxy(function() {
+
+            //prevent from scrolling to top
+            event.preventDefault();
+
             this.$sortHeader = $(event.target).closest('th');
 
             var $order = this.$sortHeader.find('span');
