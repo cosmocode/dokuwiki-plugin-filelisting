@@ -95,9 +95,8 @@
                         $(this).show();
                     }
                 });
-                $row.data('isExpanded', true);
 
-                //expand content
+                $row.data('isExpanded', true);
                 this.$content.trigger('expand', namespace);
 
             //namespace isn't loaded
@@ -115,14 +114,13 @@
                     $.proxy(function(html) {
                         $row.children(':first').html(this.options.dirOpenedIcon);
                         $row.after(html);
-                        $row.data('isLoaded', true);
-                        $row.data('isExpanded', true);
 
-                        //trigger nsload then expand
-                        $.when(this.$content.trigger('nsload', namespace))
-                            .then($.proxy(function () {
-                                this.$content.trigger('expand', namespace)
-                            }, this));
+                        $row.data('isLoaded', true);
+                        this.$content.trigger('nsload', namespace);
+
+                        $row.data('isExpanded', true);
+                        this.$content.trigger('expand', namespace);
+
                     }, this), 'html')
                     .fail($.proxy(function () {
                         $row.children(':first').html(this.options.dirClosedIcon);
