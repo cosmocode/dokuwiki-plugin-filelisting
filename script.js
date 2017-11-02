@@ -226,7 +226,7 @@
         this.$content.find('thead th a').prepend('<span>');
 
         //options for click
-        this.$content.find('thead th a').on('click', $.proxy(function() {
+        this.$content.find('thead th a').on('click', $.proxy(function(event) {
 
             //prevent from scrolling to top
             event.preventDefault();
