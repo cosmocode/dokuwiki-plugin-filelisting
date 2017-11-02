@@ -78,10 +78,10 @@ class helper_plugin_filelisting extends DokuWiki_Plugin {
         $files = $this->getFiles($ns);
         $ret = '';
         foreach ($files as $file) {
+            //skip dirs
+            if ($filesOnly && $file['isdir']) continue;
+
             if ($file['isdir']) {
-                if ($filesOnly) {
-                    continue;
-                }
                 $ret .= '<tr data-namespace="'.$file['id'].'"';
             } else {
                 $ret .= '<tr';
