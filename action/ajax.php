@@ -40,13 +40,26 @@ class action_plugin_filelisting_ajax extends DokuWiki_Action_Plugin {
         global $INPUT;
 
         $ns = $INPUT->str('namespace');
-        $baseNs = $INPUT->int('baseNamespace');
-        //count level at leat one
-        $lvl = substr_count($ns, ':') - substr_count($baseNs, ':') + 1;
+        $baseNs = $INPUT->str('baseNamespace');
+        $lvl = $this->getNumberOfSubnamespaces($ns) - $this->getNumberOfSubnamespaces($baseNs);
 
         $filelisting = $this->loadHelper('filelisting');
 
-        echo $filelisting->getFilesRows($ns, $lvl);
+        echo $filelisting->getFilesRows($ns, $lvl, $INPUT->bool('filesOnly'));
+    }
+
+    /**
+     * Calculate the number of subnamespaces, the given namespace is consisting of
+     *
+     * @param string $namespace
+     * @return int
+     */
+    protected function getNumberOfSubnamespaces($namespace) {
+        $cleanedNamespace = trim($namespace, ':');
+        if ($cleanedNamespace === '') {
+            return 0;
+        }
+        return substr_count($cleanedNamespace, ':') + 1;
     }
 
 }

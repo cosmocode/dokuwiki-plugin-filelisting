@@ -71,12 +71,16 @@ class helper_plugin_filelisting extends DokuWiki_Plugin {
      * Return namespace files as html table rows
      * @param string    $ns
      * @param int       $lvl
+     * @param bool      $filesOnly if true, then the directories in a namespace are ignored
      * @return string
      */
-    public function getFilesRows($ns, $lvl=0) {
+    public function getFilesRows($ns, $lvl=0, $filesOnly = false) {
         $files = $this->getFiles($ns);
         $ret = '';
         foreach ($files as $file) {
+            //skip dirs
+            if ($filesOnly && $file['isdir']) continue;
+
             if ($file['isdir']) {
                 $ret .= '<tr data-namespace="'.$file['id'].'"';
             } else {
