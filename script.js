@@ -129,6 +129,42 @@
                     }, this));
             }
         }, this));
+
+        this.$content.on('namespaceFilesChanged', $.proxy(function (event, namespace) {
+            var $row = $('tr[data-namespace="'+namespace+'"]');
+            if ($row.length && !$row.data('isLoaded')) {
+                return;
+            }
+
+            var data = {};
+
+            data['call'] = 'plugin_filelisting';
+            data['namespace'] = namespace;
+            data['baseNamespace'] = this.options.baseNamespace;
+            data['filesOnly'] = true;
+
+            $.post(DOKU_BASE + 'lib/exe/ajax.php', data,
+                $.proxy(function(html) {
+                    var fileRows = jQuery(html);
+                    if ($row && !$row.data('isExpanded')) {
+                        fileRows.hide();
+                    }
+                    var $filesInNamespace = $('tr[data-childOf="'+namespace+'"]').not('[data-namespace]');
+                    if ($filesInNamespace.length) {
+                        // there are already files in the namespace: replace them
+                        $filesInNamespace.first().replaceWith(fileRows);
+                        $filesInNamespace.remove();
+                    } else if ($('tr[data-childOf="'+namespace+'"]').length) {
+                        // there are no files, but other folders in the namespace: insert after them
+                        $('tr[data-childOf="'+namespace+'"]').last().after(fileRows);
+                    } else {
+                        // tbody is currently empty: append to it
+                        this.$content.find('tbody').append(fileRows);
+                    }
+
+                    this.$content.trigger('nsload', namespace);
+                }, this), 'html');
+        }, this))
     };
 
     Filelisting.prototype.initFilter = function() {
