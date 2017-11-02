@@ -1,7 +1,7 @@
 .plugin__filelisting {
 
     .plugin__filelisting_capiton {
-        border: 1px solid #ccc;
+        border: 1px solid @ini_border;
         margin-bottom: -1px; //fixed border
         span {
             font-weight: bold;
@@ -9,7 +9,7 @@
     }
 
     .plugin__filelisting_filter {
-        border: 1px solid #ccc;
+        border: 1px solid @ini_border;
     }
 
     .plugin__filelisting_content {
@@ -21,11 +21,22 @@
             //reset default dokuwiki margin
             margin: 0;
 
-            //make icons cells stable width
+            //icon cells
             tr td:first-child {
+                //change default table padding
+                padding-left: 4px;
+                padding-right: 4px;
+
+                //make icon cells stable width
                 width: 16px;
                 min-width: 16px;
                 max-width: 16px;
+
+                //directory icons styling
+                svg {
+                    fill: @ini_text;
+                    vertical-align: middle;
+                }
             }
         }
     }
