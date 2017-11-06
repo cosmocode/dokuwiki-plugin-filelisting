@@ -144,7 +144,7 @@
             $.post(DOKU_BASE + 'lib/exe/ajax.php', data,
                 $.proxy(function(html) {
                     var fileRows = jQuery(html);
-                    if ($row && !$row.data('isExpanded')) {
+                    if ($row.length && !$row.data('isExpanded')) {
                         fileRows.hide();
                     }
                     var $filesInNamespace = $('tr[data-childOf="'+namespace+'"]').not('[data-namespace]');
