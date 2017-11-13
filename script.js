@@ -18,7 +18,7 @@
 
     Filelisting.prototype.getToggleStatus = function () {
         if (!localStorage.getItem(this.storageKey)) {
-            localStorage.setItem(this.storageKey, this.options.defaultToggle);
+            return this.options.defaultToggle;
         }
         return localStorage.getItem(this.storageKey);
     };
