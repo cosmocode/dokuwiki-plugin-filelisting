@@ -36,7 +36,7 @@
             .css({
                 float: 'right',
                 cursor: 'pointer'
-            }).appendTo(this.$capiton);
+            }).addClass('plugin__filelisting_toggle').appendTo(this.$capiton);
 
         //by default filelisting is visible
         if (this.getToggleStatus() === 'hidden') {
