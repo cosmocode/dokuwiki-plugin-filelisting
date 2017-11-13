@@ -29,6 +29,13 @@ class helper_plugin_filelisting extends DokuWiki_Plugin {
             $ns_string = $ns;
         }
 
+        $colgroup = '<colgroup>';
+        $colgroup .= '<col style="width: 16px;">';
+        $colgroup .= '<col style="width: 50%;">';
+        $colgroup .= '<col style="width: 15%;">';
+        $colgroup .= '<col style="width: 35%;">';
+        $colgroup .= '</colgroup>';
+
         $ret = '<div class="plugin__filelisting">';
 
         $ret .= '<div class="plugin__filelisting_capiton">';
@@ -38,8 +45,9 @@ class helper_plugin_filelisting extends DokuWiki_Plugin {
         //collapsible is for filter box (added dynamicly by JS)
         $ret .= '<div class="plugin__filelisting_collapsible">';
         $ret .= '<div class="plugin__filelisting_content">';
-        $ret .= '<table>';
 
+        $ret .= '<table>';
+        $ret .= $colgroup;
         $ret .= '<thead>';
         $ret .= '<tr>';
         $ret .= '<th></th>';
@@ -48,7 +56,11 @@ class helper_plugin_filelisting extends DokuWiki_Plugin {
         $ret .= '<th>' . $this->getLang('header filedate') .'</th>';
         $ret .= '</tr>';
         $ret .= '</thead>';
+        $ret .= '</table>';
 
+        $ret .= '<table class="plugin__filelisting_bodytable">';
+        $ret .= $colgroup;
+        $ret .= '<thead>';
         $ret .= '<tbody>';
         $ret .= $this->getFilesRows($ns);
         $ret .= '</tbody>';
