@@ -18,7 +18,7 @@
 
     Filelisting.prototype.getToggleStatus = function () {
         if (!localStorage.getItem(this.storageKey)) {
-            localStorage.setItem(this.storageKey, this.options.defaultToggle);
+            return this.options.defaultToggle;
         }
         return localStorage.getItem(this.storageKey);
     };
@@ -36,7 +36,7 @@
             .css({
                 float: 'right',
                 cursor: 'pointer'
-            }).appendTo(this.$capiton);
+            }).addClass('plugin__filelisting_toggle').appendTo(this.$capiton);
 
         //by default filelisting is visible
         if (this.getToggleStatus() === 'hidden') {
