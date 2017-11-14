@@ -45,7 +45,10 @@ class action_plugin_filelisting_ajax extends DokuWiki_Action_Plugin {
 
         $filelisting = $this->loadHelper('filelisting');
 
-        echo $filelisting->getFilesRows($ns, $lvl, $INPUT->bool('filesOnly'));
+        $elements = $filelisting->getFilesRows($ns, $lvl, $INPUT->bool('filesOnly'));
+        foreach($elements as $element) {
+            echo $element->toHTML();
+        }
     }
 
     /**

@@ -8,8 +8,14 @@
         }
     }
 
-    .plugin__filelisting_filter {
+    .plugin__filelisting_footer {
+        padding: .3em .5em;
         border: 1px solid @ini_border;
+
+        //margin for delete button
+        button {
+            margin-right: 2em;
+        }
     }
 
     .plugin__filelisting_content {
@@ -21,8 +27,18 @@
             //reset default dokuwiki margin
             margin: 0;
 
-            //icon cells
+            //checkbox cells
             tr td:first-child {
+                //change default table padding
+                padding-left: 4px;
+                padding-right: 4px;
+
+                //minimal possible width
+                width: 1%;
+            }
+
+            //icon cells
+            tr td.plugin__filelisting_cell_icon {
                 //change default table padding
                 padding-left: 4px;
                 padding-right: 4px;

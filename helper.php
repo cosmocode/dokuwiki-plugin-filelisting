@@ -37,24 +37,38 @@ class helper_plugin_filelisting extends DokuWiki_Plugin {
 
         //collapsible is for filter box (added dynamicly by JS)
         $ret .= '<div class="plugin__filelisting_collapsible">';
-        $ret .= '<div class="plugin__filelisting_content">';
-        $ret .= '<table>';
 
-        $ret .= '<thead>';
-        $ret .= '<tr>';
-        $ret .= '<th></th>';
-        $ret .= '<th>' . $this->getLang('header filename') .'</th>';
-        $ret .= '<th>' . $this->getLang('header filesize') .'</th>';
-        $ret .= '<th>' . $this->getLang('header filedate') .'</th>';
-        $ret .= '</tr>';
-        $ret .= '</thead>';
+        //form for file deletion
+        $form = new dokuwiki\Form\Form();
+        $form->addHTML('<div class="plugin__filelisting_content">');
+        $form->addHTML('<table>');
 
-        $ret .= '<tbody>';
-        $ret .= $this->getFilesRows($ns);
-        $ret .= '</tbody>';
+        $form->addHTML('<thead>');
+        $form->addHTML('<tr>');
+        //colspan for delete checkbox and icon
+        $form->addHTML('<th colspan="2"></th>');
+        $form->addHTML('<th>' . $this->getLang('header filename') .'</th>');
+        $form->addHTML('<th>' . $this->getLang('header filesize') .'</th>');
+        $form->addHTML('<th>' . $this->getLang('header filedate') .'</th>');
+        $form->addHTML('</tr>');
+        $form->addHTML('</thead>');
 
-        $ret .= '</table>';
-        $ret .= '</div>';
+        $form->addHTML('<tbody>');
+        $rowElements = $this->getFilesRows($ns);
+        foreach($rowElements as $element) {
+            $form->addElement($element);
+        }
+        $form->addHTML('</tbody>');
+
+        $form->addHTML('</table>');
+        $form->addHTML('</div>');
+
+        $form->addHTML('<div class="plugin__filelisting_footer">');
+        //user can delete on this namespace
+        $form->addButton('fn[delete]', $this->getLang('delete_selected'));
+        $form->addHTML('</div>');
+
+        $ret .= $form->toHTML();
 
         //collapsible
         $ret .= '</div>';
@@ -72,42 +86,56 @@ class helper_plugin_filelisting extends DokuWiki_Plugin {
      * @param string    $ns
      * @param int       $lvl
      * @param bool      $filesOnly if true, then the directories in a namespace are ignored
-     * @return string
+     * @return array    of \dokuwiki\Form\Element
      */
     public function getFilesRows($ns, $lvl=0, $filesOnly = false) {
         $files = $this->getFiles($ns);
-        $ret = '';
+        $elements = array();
         foreach ($files as $file) {
             //skip dirs
             if ($filesOnly && $file['isdir']) continue;
 
-            if ($file['isdir']) {
-                $ret .= '<tr data-namespace="'.$file['id'].'"';
-            } else {
-                $ret .= '<tr';
-            }
             //empty $ns means root
-            $ret .= ' data-childOf="'.$ns.'">';
-
-            $ret .= '<td>' . $file['icon'] . '</td>';
-
-            $ret .= '<td data-sort="' . $file['file'] . '">';
-            if ($lvl > 0) {
-                $ret .= '<span style="margin-left: ' . $lvl * 10 . 'px;">↳ </span>';
+            $trOpen = new \dokuwiki\Form\TagOpenElement('tr', array('data-childOf' => $ns));
+            if ($file['isdir']) {
+                $trOpen->attr('data-namespace', $file['id']);
             }
-            $ret .= $file['link'];
-            $ret .= '</td>';
+            $elements[] = $trOpen;
+
+            //delete checkbox
+            $elements[] = new \dokuwiki\Form\TagOpenElement('td');
+            if (!$file['isdir'] && $file['perm'] >= AUTH_DELETE) {
+                $name = 'delete[' . $file['id'] . ']';
+                $elements[] = new \dokuwiki\Form\CheckableElement('checkbox', $name, '');
+            }
+            $elements[] = new \dokuwiki\Form\TagCloseElement('td');
+
+            $html = '<td class="plugin__filelisting_cell_icon">' . $file['icon'] . '</td>';
+            $elements[] = new \dokuwiki\Form\HTMLElement($html);
+
+            $td_name = new \dokuwiki\Form\TagOpenElement('td', array('data-sort' => $file['file']));
+            $td_name->addClass('plugin__filelisting_cell_name');
+            $elements[] = $td_name;
+
+            if ($lvl > 0) {
+                $html = '<span style="margin-left: ' . $lvl * 10 . 'px;">↳ </span>';
+                $elements[] = new \dokuwiki\Form\HTMLElement($html);
+            }
+            $elements[] = new \dokuwiki\Form\HTMLElement($file['link']);
+            $elements[] = new \dokuwiki\Form\TagCloseElement('td');
 
             if ($file['isdir']) {
-                $ret .= '<td data-sort=""> — </td>';
-                $ret .= '<td data-sort=""> — </td>';
+                $elements[] = new \dokuwiki\Form\HTMLElement('<td data-sort=""> — </td>');
+                $elements[] = new \dokuwiki\Form\HTMLElement('<td data-sort=""> — </td>');
             } else {
-                $ret .= '<td data-sort="' . $file['size'] . '">' . filesize_h($file['size']) . '</td>';
-                $ret .= '<td data-sort="' . $file['mtime'] . '">' . dformat($file['mtime']) . '</td>';
+                $html = '<td data-sort="' . $file['size'] . '">' . filesize_h($file['size']) . '</td>';
+                $elements[] = new \dokuwiki\Form\HTMLElement($html);
+                $html = '<td data-sort="' . $file['mtime'] . '">' . dformat($file['mtime']) . '</td>';
+                $elements[] = new \dokuwiki\Form\HTMLElement($html);
             }
-            $ret .= '</tr>';
+            $elements[] = new \dokuwiki\Form\TagCloseElement('tr');
         }
-        return $ret;
+        return $elements;
     }
 
     /**

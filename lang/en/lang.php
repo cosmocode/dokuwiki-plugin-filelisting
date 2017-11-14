@@ -10,6 +10,7 @@ $lang['header filesize'] = 'Size';
 $lang['header filedate'] = 'Date';
 
 $lang['files_in_namespace'] = 'Files in namespace <span>%s</span>';
+$lang['delete_selected'] = 'Delete selected';
 
 $lang['js']['filter_label'] = 'Filter';
 

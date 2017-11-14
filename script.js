@@ -5,6 +5,7 @@
         this.$capiton = $(element).find('.plugin__filelisting_capiton');
         this.$collapsible = $(element).find('.plugin__filelisting_collapsible');
         this.$content = $(element).find('.plugin__filelisting_content');
+        this.$footer = $(element).find('.plugin__filelisting_footer');
 
         this.options = $.extend({}, $.fn.dokuwiki_plugin_filelisting.defaults, options);
 
@@ -14,6 +15,7 @@
         this.initAjaxDirectoryExpand();
         this.initFilter();
         this.initSorting();
+        this.initDelete();
     };
 
     Filelisting.prototype.getToggleStatus = function () {
@@ -73,7 +75,7 @@
             //namespace is expanded - hide it
             if ($row.data('isExpanded')) {
                 //set icon
-                $row.children(':first').html(this.options.dirClosedIcon);
+                $row.children('.plugin__filelisting_cell_icon').html(this.options.dirClosedIcon);
                 //save the state of all expanded sub namespaces to restore it as it was
                 $descendants.each(function () {
                      if ($(this).is(':visible')) {
@@ -86,7 +88,7 @@
 
             //namespace is hidden and is loaded
             } else if ($row.data('isLoaded')) {
-                $row.children(':first').html(this.options.dirOpenedIcon);
+                $row.children('.plugin__filelisting_cell_icon').html(this.options.dirOpenedIcon);
                 //always open children
                 $children.show();
                 //check if we should open any descendents
@@ -102,7 +104,7 @@
             //namespace isn't loaded
             } else {
                 //loading
-                $row.children(':first').html(this.options.loadingIcon);
+                $row.children('.plugin__filelisting_cell_icon').html(this.options.loadingIcon);
 
                 var data = {};
 
@@ -112,7 +114,7 @@
 
                 $.post(DOKU_BASE + 'lib/exe/ajax.php', data,
                     $.proxy(function(html) {
-                        $row.children(':first').html(this.options.dirOpenedIcon);
+                        $row.children('.plugin__filelisting_cell_icon').html(this.options.dirOpenedIcon);
                         $row.after(html);
 
                         $row.data('isLoaded', true);
@@ -123,7 +125,7 @@
 
                     }, this), 'html')
                     .fail($.proxy(function () {
-                        $row.children(':first').html(this.options.dirClosedIcon);
+                        $row.children('.plugin__filelisting_cell_icon').html(this.options.dirClosedIcon);
                     }, this));
             }
         }, this));
@@ -166,23 +168,17 @@
     };
 
     Filelisting.prototype.initFilter = function() {
-        //global filter container
-        this.$filterContainer = $('<div class="plugin__filelisting_filter">')
-            .appendTo(this.$collapsible);
-
-        var $label = $('<label>').text(this.options.filterLabel + ': ')
-                .appendTo(this.$filterContainer),
-            $filterInput = $('<input>').appendTo($label);
+        this.$filter = $('<label>' + this.options.filterLabel + ': <input></label>').appendTo(this.$footer);
 
         //filter has changed, update content
-        $filterInput.on('keyup', $.proxy(this.applyFilter, this));
+        this.$filter.find('input').on('keyup', $.proxy(this.applyFilter, this));
 
         //bind filtering to content update event
         this.$content.on('expand', $.proxy(this.applyFilter, this));
     };
 
     Filelisting.prototype.applyFilter = function() {
-        var filter = this.$filterContainer.find('input').val(),
+        var filter = this.$filter.find('input').val(),
             //escape regex
             //https://developer.mozilla.org/en-US/docs/Web/JavaScript/Guide/Regular_Expressions#Using_Special_Characters
             escaped = filter.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'), // $& means the whole matched string
@@ -194,7 +190,7 @@
             filterCallback = function() {
                 //text in second column
                 var $row = $(this),
-                    text = $row.find('td:eq(1) a').text();
+                    text = $row.find('td.plugin__filelisting_cell_name a').text();
                 if (text.match(regex)) {
                     $row.show();
                 } else {
@@ -306,6 +302,22 @@
             //sort sub namespaces
             this.sortBy(namespace);
         }, this));
+    };
+
+    Filelisting.prototype.initDelete = function() {
+        this.toggleDeleteButton();
+        //show/hide delete button
+        this.$content.on('change', 'input[type=checkbox]', $.proxy(this.toggleDeleteButton, this));
+    };
+
+    Filelisting.prototype.toggleDeleteButton = function() {
+        var $deleteButton = this.$collapsible.find('button[name="fn[delete]"]');
+
+        if (this.$content.find('input[type=checkbox]:checked').length === 0) {
+            $deleteButton.hide();
+        } else {
+            $deleteButton.show();
+        }
     };
 
 
