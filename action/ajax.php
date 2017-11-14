@@ -43,6 +43,7 @@ class action_plugin_filelisting_ajax extends DokuWiki_Action_Plugin {
         $baseNs = $INPUT->str('baseNamespace');
         $lvl = $this->getNumberOfSubnamespaces($ns) - $this->getNumberOfSubnamespaces($baseNs);
 
+        /** @var helper_plugin_filelisting $filelisting */
         $filelisting = $this->loadHelper('filelisting');
 
         $elements = $filelisting->getFilesRows($ns, $lvl, $INPUT->bool('filesOnly'));

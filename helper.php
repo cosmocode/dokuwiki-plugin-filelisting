@@ -65,7 +65,7 @@ class helper_plugin_filelisting extends DokuWiki_Plugin {
 
         $form->addHTML('<div class="plugin__filelisting_footer">');
         //user can delete on this namespace
-        $form->addButton('fn[delete]', $this->getLang('delete_selected'));
+        $form->addButton('do[plugin_filelisting_delete]', $this->getLang('delete_selected'));
         $form->addHTML('</div>');
 
         $ret .= $form->toHTML();
@@ -252,6 +252,31 @@ class helper_plugin_filelisting extends DokuWiki_Plugin {
         }
 
         return search_media($data, $base, $file, $type, $lvl, $opts);
+    }
+
+    public function delete_files($files_to_delete) {
+        global $conf;
+        global $lang;
+        global $INFO;
+
+        $msgs = array();
+        foreach ($files_to_delete as $DEL) {
+            $res = media_delete($DEL, $INFO['perm']);
+            if ($res & DOKU_MEDIA_DELETED) {
+                $msg = sprintf($lang['deletesucc'], noNS($DEL));
+                $msgs[] = array('message' => $msg, 'lvl' => 1);
+            } elseif ($res & DOKU_MEDIA_INUSE) {
+                if(!$conf['refshow']) {
+                    $msg = sprintf($lang['mediainuse'],noNS($DEL));
+                    $msgs[] = array('message' => $msg, 'lvl' => 0);
+                }
+            } else {
+                $msg = sprintf($lang['deletefail'],noNS($DEL));
+                $msgs[] = array('message' => $msg, 'lvl' => -1);
+            }
+        }
+
+        return $msgs;
     }
 
 }
