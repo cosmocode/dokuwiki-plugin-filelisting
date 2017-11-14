@@ -311,7 +311,7 @@
     };
 
     Filelisting.prototype.toggleDeleteButton = function() {
-        var $deleteButton = this.$collapsible.find('button[name="fn[delete]"]');
+        var $deleteButton = this.$collapsible.find('button[name="do[plugin_filelisting_delete]"]');
 
         if (this.$content.find('input[type=checkbox]:checked').length === 0) {
             $deleteButton.hide();
