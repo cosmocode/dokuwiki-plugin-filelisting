@@ -202,8 +202,8 @@
                 }
             };
 
-        //files in root namespace are always visible
-        $files.filter('[data-childOf=""]').each(filterCallback);
+        //files in base namespace are always visible
+        $files.filter('[data-childOf="' + this.options.baseNamespace + '"]').each(filterCallback);
 
         //get namespaces
         $dirs.filter(function() {
