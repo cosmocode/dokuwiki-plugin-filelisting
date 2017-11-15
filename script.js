@@ -369,4 +369,18 @@ jQuery(function() {
     options.filterLabel = LANG.plugins.filelisting.filter_label;
 
     jQuery('.plugin__filelisting').dokuwiki_plugin_filelisting(options);
+
+    /**
+     * Fixes the tablewidths so that the table columns in header and body are exactly aligned
+     *
+     * This is necessary, because browsers have different widths for scrollbars
+     */
+    jQuery('.plugin__filelisting').each(function adjustTableWidthForScrollbar(index, container) {
+        var $bodyTable = jQuery(container).find('.plugin__filelisting_bodytable table');
+        var $headerWrapper = jQuery(container).find('.plugin__filelisting_headertable');
+        var tablediff = $bodyTable.width() - $headerWrapper.find('table').width();
+        var originalPaddingRight = parseInt($headerWrapper.css('padding-right'), 10);
+        var newPaddingRight = originalPaddingRight - tablediff;
+        $headerWrapper.css('padding-right', newPaddingRight + 'px');
+    });
 });

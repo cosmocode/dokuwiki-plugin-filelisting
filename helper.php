@@ -30,7 +30,7 @@ class helper_plugin_filelisting extends DokuWiki_Plugin {
         }
 
         $colgroup = '<colgroup>';
-        $colgroup .= '<col style="width: 16px;">';
+        $colgroup .= '<col style="width: 25px;">';
         $colgroup .= '<col style="width: 50%;">';
         $colgroup .= '<col style="width: 15%;">';
         $colgroup .= '<col style="width: 35%;">';
@@ -46,6 +46,7 @@ class helper_plugin_filelisting extends DokuWiki_Plugin {
         $ret .= '<div class="plugin__filelisting_collapsible">';
         $ret .= '<div class="plugin__filelisting_content">';
 
+        $ret .= '<div class="plugin__filelisting_headertable">';
         $ret .= '<table>';
         $ret .= $colgroup;
         $ret .= '<thead>';
@@ -57,8 +58,10 @@ class helper_plugin_filelisting extends DokuWiki_Plugin {
         $ret .= '</tr>';
         $ret .= '</thead>';
         $ret .= '</table>';
+        $ret .= '</div>';
 
-        $ret .= '<table class="plugin__filelisting_bodytable">';
+        $ret .= '<div class="plugin__filelisting_bodytable">';
+        $ret .= '<table>';
         $ret .= $colgroup;
         $ret .= '<thead>';
         $ret .= '<tbody>';
@@ -66,6 +69,7 @@ class helper_plugin_filelisting extends DokuWiki_Plugin {
         $ret .= '</tbody>';
 
         $ret .= '</table>';
+        $ret .= '</div>';
         $ret .= '</div>';
 
         //collapsible

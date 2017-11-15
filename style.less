@@ -14,16 +14,20 @@
 
     .plugin__filelisting_content {
 
+        .plugin__filelisting_headertable {
+            padding-right: 15px;
+        }
+        .plugin__filelisting_bodytable {
+            display: block;
+            max-height: 200px;
+            overflow-y: scroll;
+        }
+
         table {
             width: 100%;
             //reset default dokuwiki margin
             margin: 0;
-
-            &.plugin__filelisting_bodytable {
-                display: block;
-                max-height: 200px;
-                overflow-y: auto;
-            }
+            table-layout: fixed;
 
             //icon cells
             tr td:first-child {
