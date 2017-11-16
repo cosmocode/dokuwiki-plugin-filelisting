@@ -5,6 +5,10 @@
         this.$capiton = $(element).find('.plugin__filelisting_capiton');
         this.$collapsible = $(element).find('.plugin__filelisting_collapsible');
         this.$content = $(element).find('.plugin__filelisting_content');
+
+        this.$headertable = $(element).find('.plugin__filelisting_headertable');
+        this.$bodytable = $(element).find('.plugin__filelisting_bodytable');
+
         this.$footer = $(element).find('.plugin__filelisting_footer');
 
         this.options = $.extend({}, $.fn.dokuwiki_plugin_filelisting.defaults, options);
@@ -262,7 +266,9 @@
             $files = $rows.not('[data-namespace]'),
             $dirs = $rows.not($files),
             sortCallback = $.proxy(function (a, b) {
-                var index = this.$sortHeader.index(),
+                //remember about first th colspan
+                var colspan = this.$headertable.find('th').first().attr('colspan'),
+                    index = this.$sortHeader.index() + (colspan - 1),
                     order = 1; //1 ascending order, -1 descending order
 
                 //check for desc sorting

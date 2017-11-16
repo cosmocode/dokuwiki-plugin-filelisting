@@ -27,6 +27,23 @@
             display: block;
             max-height: 200px;
             overflow-y: scroll;
+
+            //checkbox cell
+            td:first-child {
+                padding: 4px;
+            }
+
+            //icon cells
+            td.plugin__filelisting_cell_icon {
+                padding: 4px;
+
+                //directory icons styling
+                svg {
+                    fill: @ini_text;
+                    vertical-align: middle;
+                    text-align:center;
+                }
+            }
         }
 
         table {
@@ -34,34 +51,6 @@
             //reset default dokuwiki margin
             margin: 0;
             table-layout: fixed;
-
-            //checkbox cells
-            tr td:first-child {
-                //change default table padding
-                padding-left: 4px;
-                padding-right: 4px;
-
-                //minimal possible width
-                width: 1%;
-            }
-
-            //icon cells
-            tr td.plugin__filelisting_cell_icon {
-                //change default table padding
-                padding-left: 4px;
-                padding-right: 4px;
-
-                //make icon cells stable width
-                width: 16px;
-                min-width: 16px;
-                max-width: 16px;
-
-                //directory icons styling
-                svg {
-                    fill: @ini_text;
-                    vertical-align: middle;
-                }
-            }
         }
     }
 }
