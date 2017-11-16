@@ -366,7 +366,7 @@
         //sort descending label
         sortDesc: '↑',
         //confirm file deletion
-        deleteConfirm: 'Are you sure you want to delete this files?'
+        deleteConfirm: LANG.plugins.filelisting.delete_confirm
     };
 
 }(window.jQuery));
