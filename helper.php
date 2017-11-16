@@ -29,6 +29,14 @@ class helper_plugin_filelisting extends DokuWiki_Plugin {
             $ns_string = $ns;
         }
 
+        $colgroup = '<colgroup>';
+        $colgroup .= '<col style="width: 22px;">';
+        $colgroup .= '<col style="width: 25px;">';
+        $colgroup .= '<col style="width: 50%;">';
+        $colgroup .= '<col style="width: 15%;">';
+        $colgroup .= '<col style="width: 35%;">';
+        $colgroup .= '</colgroup>';
+
         $ret = '<div class="plugin__filelisting">';
 
         $ret .= '<div class="plugin__filelisting_capiton">';
@@ -41,8 +49,10 @@ class helper_plugin_filelisting extends DokuWiki_Plugin {
         //form for file deletion
         $form = new dokuwiki\Form\Form();
         $form->addHTML('<div class="plugin__filelisting_content">');
-        $form->addHTML('<table>');
 
+        $form->addHTML('<div class="plugin__filelisting_headertable">');
+        $form->addHTML('<table>');
+        $form->addHTML($colgroup);
         $form->addHTML('<thead>');
         $form->addHTML('<tr>');
         //colspan for delete checkbox and icon
@@ -52,15 +62,23 @@ class helper_plugin_filelisting extends DokuWiki_Plugin {
         $form->addHTML('<th>' . $this->getLang('header filedate') .'</th>');
         $form->addHTML('</tr>');
         $form->addHTML('</thead>');
+        $form->addHTML('</table>');
+        $form->addHTML('</div>');
 
+        $form->addHTML('<div class="plugin__filelisting_bodytable">');
+        $form->addHTML('<table>');
+        $form->addHTML($colgroup);
         $form->addHTML('<tbody>');
+
         $rowElements = $this->getFilesRows($ns);
         foreach($rowElements as $element) {
             $form->addElement($element);
         }
         $form->addHTML('</tbody>');
-
         $form->addHTML('</table>');
+        $form->addHTML('</div>');
+
+        //div.plugin__filelisting_content
         $form->addHTML('</div>');
 
         $form->addHTML('<div class="plugin__filelisting_footer">');
@@ -70,10 +88,11 @@ class helper_plugin_filelisting extends DokuWiki_Plugin {
 
         $ret .= $form->toHTML();
 
-        //collapsible
+        //div.plugin__filelisting_collapsible
+        $ret .= '</div>';
+        //div.plugin__filelisting
         $ret .= '</div>';
 
-        $ret .= '</div>';
         if ($print) {
             echo $ret;
         }
