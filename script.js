@@ -145,7 +145,7 @@
 
             $.post(DOKU_BASE + 'lib/exe/ajax.php', data,
                 $.proxy(function(html) {
-                    var fileRows = jQuery(html);
+                    var fileRows = $(html);
                     if ($row.length && !$row.data('isExpanded')) {
                         fileRows.hide();
                     }
@@ -305,6 +305,15 @@
     };
 
     Filelisting.prototype.initDelete = function() {
+        var $deleteButton = this.$collapsible.find('button[name="do[plugin_filelisting_delete]"]');
+
+        $deleteButton.on('click', $.proxy(function (event) {
+            var deleteFiles = window.confirm(this.options.deleteConfirm);
+            if (!deleteFiles) {
+                event.preventDefault();
+            }
+        }, this));
+
         this.toggleDeleteButton();
         //show/hide delete button
         this.$content.on('change', 'input[type=checkbox]', $.proxy(this.toggleDeleteButton, this));
@@ -349,7 +358,9 @@
         //sort ascending label
         sortAsc: '↓',
         //sort descending label
-        sortDesc: '↑'
+        sortDesc: '↑',
+        //confirm file deletion
+        deleteConfirm: 'Are you sure you want to delete this files?'
     };
 
 }(window.jQuery));
@@ -379,6 +390,7 @@ jQuery(function() {
     options.baseNamespace = JSINFO.namespace;
 
     options.filterLabel = LANG.plugins.filelisting.filter_label;
+    options.deleteConfirm = LANG.plugins.filelisting.delete_confirm;
 
     jQuery('.plugin__filelisting').dokuwiki_plugin_filelisting(options);
 });

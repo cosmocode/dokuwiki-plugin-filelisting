@@ -13,5 +13,6 @@ $lang['files_in_namespace'] = 'Files in namespace <span>%s</span>';
 $lang['delete_selected'] = 'Delete selected';
 
 $lang['js']['filter_label'] = 'Filter';
+$lang['js']['delete_confirm'] = 'Are you sure you want to delete this files?';
 
 //Setup VIM: ex: et ts=4 :
