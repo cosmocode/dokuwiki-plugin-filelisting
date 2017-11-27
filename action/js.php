@@ -42,6 +42,7 @@ class action_plugin_filelisting_js extends DokuWiki_Action_Plugin {
         $this->jsinfo('dirOpenedIcon', $filelisting->dirOpenedIcon());
         $this->jsinfo('dirClosedIcon', $filelisting->dirClosedIcon());
         $this->jsinfo('loadingIcon', $filelisting->loadingIcon());
+        $this->jsinfo('remember_state_per_page', $this->getConf('remember_state_per_page') === 'page');
     }
 
     /**

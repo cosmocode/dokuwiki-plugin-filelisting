@@ -13,7 +13,10 @@
 
         this.options = $.extend({}, $.fn.dokuwiki_plugin_filelisting.defaults, options);
 
-        this.storageKey = 'plugin_filelisting/' + this.options.pageId;
+        this.storageKey = 'plugin_filelisting';
+        if (this.options.remember_state_per_page) {
+            this.storageKey += '/' + this.options.pageId;
+        }
 
         this.initToggleButton();
         this.initAjaxDirectoryExpand();
@@ -388,7 +391,7 @@ jQuery(function() {
     } else {
         options.defaultToggle = 'hidden';
     }
-
+    options.remember_state_per_page = JSINFO.plugin.filelisting.remember_state_per_page;
     options.dirOpenedIcon = JSINFO.plugin.filelisting.dirOpenedIcon;
     options.dirClosedIcon = JSINFO.plugin.filelisting.dirClosedIcon;
     options.loadingIcon = JSINFO.plugin.filelisting.loadingIcon;

@@ -7,4 +7,4 @@
 
 
 $meta['defaulttoggle'] = array('onoff');
-
+$meta['remember_state_per_page'] = array('multichoice','_choices' => array('page','wiki'));

@@ -6,3 +6,4 @@
  */
 
 $conf['defaulttoggle']    = '1';
+$conf['remember_state_per_page'] = 'page';
