@@ -35,7 +35,7 @@ class syntax_plugin_filelisting extends DokuWiki_Syntax_Plugin {
      * @param string $mode Parser mode
      */
     public function connectTo($mode) {
-        $this->Lexer->addSpecialPattern('{{filelisting}}',$mode,'plugin_filelisting');
+        $this->Lexer->addSpecialPattern('{{filelisting>?.*?}}',$mode,'plugin_filelisting');
     }
 
     /**
@@ -48,9 +48,26 @@ class syntax_plugin_filelisting extends DokuWiki_Syntax_Plugin {
      * @return array Data for the renderer
      */
     public function handle($match, $state, $pos, Doku_Handler $handler){
-        $data = array();
+        global $ID;
+        global $conf;
 
-        return $data;
+        $param = substr($match, strlen('{{filelisting'), -strlen('}}'));
+        $cur_ns = getNS($ID);
+        //no namespace provided
+        if (strlen($param) == 0) {
+            return array($cur_ns);
+        }
+        //remove '>' from the path
+        $ns = substr($param, 1);
+        $abs_ns = resolve_id($cur_ns, $ns);
+        $dir = str_replace(':','/',$abs_ns);
+        $abs_dir = $conf['mediadir'].'/'.utf8_encodeFN($dir);
+        if (!file_exists($abs_dir)) {
+            msg("filelisting: No namespace $ns", -1);
+            return array($cur_ns);
+        }
+
+        return array($abs_ns);
     }
 
     /**
@@ -64,10 +81,12 @@ class syntax_plugin_filelisting extends DokuWiki_Syntax_Plugin {
     public function render($mode, Doku_Renderer $renderer, $data) {
         if($mode != 'xhtml') return false;
 
+        list($ns) = $data;
+
         /** @var helper_plugin_filelisting $hlp */
         $hlp = plugin_load('helper', 'filelisting');
 
-        $renderer->doc .= $hlp->tpl_filelisting(false);
+        $renderer->doc .= $hlp->tpl_filelisting($ns,false);
         return true;
     }
 }

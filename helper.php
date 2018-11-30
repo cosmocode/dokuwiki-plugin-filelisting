@@ -18,11 +18,9 @@ class helper_plugin_filelisting extends DokuWiki_Plugin {
      *
      * @return string
      */
-    public function tpl_filelisting($print = true) {
-        global $ID;
+    public function tpl_filelisting($ns, $print = true) {
         global $lang;
 
-        $ns = getNS($ID);
         if ($ns == false) {
             $ns_string = '[' . $lang['mediaroot'] . ']';
         } else {
