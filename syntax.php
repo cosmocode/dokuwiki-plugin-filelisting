@@ -87,18 +87,21 @@ class syntax_plugin_filelisting extends DokuWiki_Syntax_Plugin {
             $dir = str_replace(':','/',$ns);
             $root = $conf['mediadir'].'/'.utf8_encodeFN($dir);
 
-            //get the ns and all its subfolders
-            //https://stackoverflow.com/questions/14304935/php-listing-all-directories-and-sub-directories-recursively-in-drop-down-menu
-            $iter = new RecursiveIteratorIterator(
-                new RecursiveDirectoryIterator($root, RecursiveDirectoryIterator::SKIP_DOTS),
-                RecursiveIteratorIterator::SELF_FIRST,
-                RecursiveIteratorIterator::CATCH_GET_CHILD // Ignore "Permission denied"
-            );
-
             $paths = array($root);
-            foreach ($iter as $path => $dir) {
-                if ($dir->isDir()) {
-                    $paths[] = $path;
+
+            if (file_exists($root)) {
+                //get the ns and all its subfolders
+                //https://stackoverflow.com/questions/14304935/php-listing-all-directories-and-sub-directories-recursively-in-drop-down-menu
+                $iter = new RecursiveIteratorIterator(
+                    new RecursiveDirectoryIterator($root, RecursiveDirectoryIterator::SKIP_DOTS),
+                    RecursiveIteratorIterator::SELF_FIRST,
+                    RecursiveIteratorIterator::CATCH_GET_CHILD // Ignore "Permission denied"
+                );
+
+                foreach ($iter as $path => $dir) {
+                    if ($dir->isDir()) {
+                        $paths[] = $path;
+                    }
                 }
             }
 
