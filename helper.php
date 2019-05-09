@@ -161,6 +161,9 @@ class helper_plugin_filelisting extends DokuWiki_Plugin {
     /**
      * Get a list of namespace files
      *
+     * Suppress error messages for invalid file names: nothing to be done here,
+     * they should be fixed in the media manager.
+     *
      * @param $ns
      * @return array
      */
@@ -172,7 +175,7 @@ class helper_plugin_filelisting extends DokuWiki_Plugin {
         $dir = utf8_encodeFN(str_replace(':','/',$ns));
         $data = array();
         search($data,$conf['mediadir'],array($this, 'search_media_and_namespaces'),
-               array('showmsg'=>true,'depth'=>1),$dir,1, false);
+               array('showmsg'=>false,'depth'=>1),$dir,1, false);
 
         return array_map(array($this, 'fileInfo'), $data);
     }
