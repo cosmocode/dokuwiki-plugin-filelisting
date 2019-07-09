@@ -278,7 +278,6 @@ class helper_plugin_filelisting extends DokuWiki_Plugin {
     }
 
     public function delete_files($files_to_delete) {
-        global $conf;
         global $lang;
         global $INFO;
 
@@ -289,10 +288,8 @@ class helper_plugin_filelisting extends DokuWiki_Plugin {
                 $msg = sprintf($lang['deletesucc'], noNS($DEL));
                 $msgs[] = array('message' => $msg, 'lvl' => 1);
             } elseif ($res & DOKU_MEDIA_INUSE) {
-                if(!$conf['refshow']) {
                     $msg = sprintf($lang['mediainuse'],noNS($DEL));
                     $msgs[] = array('message' => $msg, 'lvl' => 0);
-                }
             } else {
                 $msg = sprintf($lang['deletefail'],noNS($DEL));
                 $msgs[] = array('message' => $msg, 'lvl' => -1);
