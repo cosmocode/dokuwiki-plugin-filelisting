@@ -19,10 +19,10 @@ class helper_plugin_filelisting extends DokuWiki_Plugin {
      * @return string
      */
     public function tpl_filelisting($print = true, $ns = NULL) {
-        global $ID;
+        global $INFO;
         global $lang;
 
-        if (is_null($ns)) $ns = getNS($ID);
+        if (is_null($ns)) $ns = getNS($INFO['id']);
 
         if ($ns == false) {
             $ns_string = '[' . $lang['mediaroot'] . ']';
@@ -48,7 +48,7 @@ class helper_plugin_filelisting extends DokuWiki_Plugin {
         $ret .= '<div class="plugin__filelisting_collapsible">';
 
         //form for file deletion
-        $form = new dokuwiki\Form\Form();
+        $form = new dokuwiki\Form\Form(['action' => wl($INFO['id'], '', false, '&')]);
         $form->addHTML('<div class="plugin__filelisting_content">');
 
         $form->addHTML('<div class="plugin__filelisting_headertable">');
