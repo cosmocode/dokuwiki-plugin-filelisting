@@ -1,7 +1,7 @@
 base   filelisting
 author Szymon Olewniczak
 email  dokuwiki@cosmocode.de
-date   2019-05-09
+date   2019-07-09
 name   filelisting plugin
 desc   List files in currently viewed namespaces
 url    http://www.dokuwiki.org/plugin:filelisting
