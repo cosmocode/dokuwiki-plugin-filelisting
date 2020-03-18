@@ -70,8 +70,12 @@ class syntax_plugin_filelisting extends DokuWiki_Syntax_Plugin {
         $cur_ns = getNS($INFO['id']);
 
         list($ns) = $data;
-        if($ns === '') $ns = $cur_ns;
-        $ns = resolve_id($cur_ns, $ns);
+        if(empty($ns)) {
+            $ns = $cur_ns;
+        } else {
+            $ns = resolve_id($cur_ns, $ns);
+        }
+
 
         if ($mode == 'metadata') {
             $dir = str_replace(':','/',$ns);

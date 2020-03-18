@@ -25,6 +25,7 @@ class helper_plugin_filelisting extends DokuWiki_Plugin {
         if (is_null($ns)) $ns = getNS($INFO['id']);
 
         if ($ns == false) {
+            $ns = ':';
             $ns_string = '[' . $lang['mediaroot'] . ']';
         } else {
             $ns_string = $ns;
@@ -38,7 +39,7 @@ class helper_plugin_filelisting extends DokuWiki_Plugin {
         $colgroup .= '<col style="width: 35%;">';
         $colgroup .= '</colgroup>';
 
-        $ret = '<div class="plugin__filelisting">';
+        $ret = '<div class="plugin__filelisting" data-namespace="' . $ns . '">';
 
         $ret .= '<div class="plugin__filelisting_capiton">';
         $ret .= sprintf($this->getLang('files_in_namespace'), $ns_string);
