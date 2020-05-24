@@ -396,7 +396,13 @@ jQuery(function() {
     options.dirClosedIcon = JSINFO.plugin.filelisting.dirClosedIcon;
     options.loadingIcon = JSINFO.plugin.filelisting.loadingIcon;
 
-    options.baseNamespace = JSINFO.namespace;
+    // if base namespace is not properly set, sorting and filtering wont work
+    var ns = jQuery('.plugin__filelisting').data("namespace");
+    if (ns !== undefined) {
+        options.baseNamespace = ns;
+    } else {
+        options.baseNamespace = JSINFO.namespace;
+    }	
 
     options.filterLabel = LANG.plugins.filelisting.filter_label;
     options.deleteConfirm = LANG.plugins.filelisting.delete_confirm;
