@@ -176,9 +176,18 @@
 
     Filelisting.prototype.initFilter = function() {
         this.$filter = $('<label>' + this.options.filterLabel + ': <input></label>').appendTo(this.$footer);
+        var $input = this.$filter.find('input');
 
         //filter has changed, update content
-        this.$filter.find('input').on('keyup', $.proxy(this.applyFilter, this));
+        $input.on('keyup', $.proxy(this.applyFilter, this));
+
+        //prevent deleting files on pressing enter
+        $input.on('keydown', function (event) {
+            if(event.keyCode === 13) {
+                event.preventDefault();
+                return false;
+            }
+        });
 
         //bind filtering to content update event
         this.$content.on('expand', $.proxy(this.applyFilter, this));
@@ -402,7 +411,7 @@ jQuery(function() {
         options.baseNamespace = ns;
     } else {
         options.baseNamespace = JSINFO.namespace;
-    }	
+    }
 
     options.filterLabel = LANG.plugins.filelisting.filter_label;
     options.deleteConfirm = LANG.plugins.filelisting.delete_confirm;
