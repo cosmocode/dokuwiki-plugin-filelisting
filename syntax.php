@@ -64,46 +64,23 @@ class syntax_plugin_filelisting extends DokuWiki_Syntax_Plugin {
      * @return bool If rendering was successful.
      */
     public function render($mode, Doku_Renderer $renderer, $data) {
-        global $conf;
         global $INFO;
 
-        $cur_ns = getNS($INFO['id']);
-
-        list($ns) = $data;
-        if(empty($ns)) {
-            $ns = $cur_ns;
-        } else {
-            $ns = resolve_id($cur_ns, $ns);
-        }
-
-
         if ($mode == 'metadata') {
-            $dir = str_replace(':','/',$ns);
-            $root = $conf['mediadir'].'/'.utf8_encodeFN($dir);
-
-            $paths = array($root);
-
-            if (file_exists($root)) {
-                //get the ns and all its subfolders
-                //https://stackoverflow.com/questions/14304935/php-listing-all-directories-and-sub-directories-recursively-in-drop-down-menu
-                $iter = new RecursiveIteratorIterator(
-                    new RecursiveDirectoryIterator($root, RecursiveDirectoryIterator::SKIP_DOTS),
-                    RecursiveIteratorIterator::SELF_FIRST,
-                    RecursiveIteratorIterator::CATCH_GET_CHILD // Ignore "Permission denied"
-                );
-
-                foreach ($iter as $path => $dir) {
-                    if ($dir->isDir()) {
-                        $paths[] = $path;
-                    }
-                }
-            }
-
-            $renderer->meta['filelisting'] = $paths;
+            //inform the cache that the plugin is used
+            $renderer->meta['filelisting'] = true;
 
             return true;
         } elseif ($mode == 'xhtml') {
 
+            $cur_ns = getNS($INFO['id']);
+
+            list($ns) = $data;
+            if(empty($ns)) {
+                $ns = $cur_ns;
+            } else {
+                $ns = resolve_id($cur_ns, $ns);
+            }
 
             /** @var helper_plugin_filelisting $hlp */
             $hlp = plugin_load('helper', 'filelisting');

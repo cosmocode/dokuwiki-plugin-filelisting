@@ -7,6 +7,8 @@
  */
 
 // must be run within Dokuwiki
+use dokuwiki\Cache\CacheRenderer;
+
 if (!defined('DOKU_INC')) {
     die();
 }
@@ -38,19 +40,19 @@ class action_plugin_filelisting_cache extends DokuWiki_Action_Plugin
     public function handle_parser_cache_use(Doku_Event $event, $param)
     {
         global $conf;
-        /** @var cache_parser $cache */
-        $cache = &$event->data;
+        /** @var CacheRenderer $cache */
+        $cache = $event->data;
 
         if(!isset($cache->page)) return;
         //purge only xhtml cache
         if($cache->mode != 'xhtml') return;
         //Check if it is an filelisting page
-        $ns = p_get_metadata($cache->page, 'filelisting');
-        if(!$ns) return;
+        $filelisting = p_get_metadata($cache->page, 'filelisting');
+        if(!$filelisting) return;
 
-        //add a media directories to dependencies
-        $cache->depends['files'] = array_merge($cache->depends['files'], $ns);
-
+        //since every user can have diffirent view regarding the permission
+        //and the cache invalidates every files change - just ignore it.
+        $cache->_nocache = true;
     }
 }
 
