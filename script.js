@@ -405,8 +405,9 @@ jQuery(function() {
     options.dirClosedIcon = JSINFO.plugin.filelisting.dirClosedIcon;
     options.loadingIcon = JSINFO.plugin.filelisting.loadingIcon;
 
+    var $plugin__filelisting = jQuery('.plugin__filelisting');
     // if base namespace is not properly set, sorting and filtering wont work
-    var ns = jQuery('.plugin__filelisting').data("namespace");
+    var ns = $plugin__filelisting.data("namespace");
     if (ns !== undefined) {
         options.baseNamespace = ns;
     } else {
@@ -416,14 +417,14 @@ jQuery(function() {
     options.filterLabel = LANG.plugins.filelisting.filter_label;
     options.deleteConfirm = LANG.plugins.filelisting.delete_confirm;
 
-    jQuery('.plugin__filelisting').dokuwiki_plugin_filelisting(options);
+    $plugin__filelisting.dokuwiki_plugin_filelisting(options);
 
     /**
      * Fixes the tablewidths so that the table columns in header and body are exactly aligned
      *
      * This is necessary, because browsers have different widths for scrollbars
      */
-    jQuery('.plugin__filelisting').each(function adjustTableWidthForScrollbar(index, container) {
+    $plugin__filelisting.each(function adjustTableWidthForScrollbar(index, container) {
         var $bodyTable = jQuery(container).find('.plugin__filelisting_bodytable table');
         var $headerWrapper = jQuery(container).find('.plugin__filelisting_headertable');
         var tablediff = $bodyTable.width() - $headerWrapper.find('table').width();
