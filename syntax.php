@@ -6,8 +6,7 @@
  * @author  Szymon Olewniczak <dokuwiki@cosmocode.de>
  */
 
-// must be run within Dokuwiki
-if (!defined('DOKU_INC')) die();
+use dokuwiki\File\PageResolver;
 
 class syntax_plugin_filelisting extends DokuWiki_Syntax_Plugin {
     /**
@@ -16,12 +15,14 @@ class syntax_plugin_filelisting extends DokuWiki_Syntax_Plugin {
     public function getType() {
         return 'substition';
     }
+
     /**
      * @return string Paragraph type
      */
     public function getPType() {
         return 'block';
     }
+
     /**
      * @return int Sort order - Low numbers go before high numbers
      */
@@ -50,7 +51,7 @@ class syntax_plugin_filelisting extends DokuWiki_Syntax_Plugin {
     public function handle($match, $state, $pos, Doku_Handler $handler){
         $param = substr($match, strlen('{{filelisting'), -strlen('}}'));
         //remove '>' from the path
-        if(strlen($param) !== 0) $ns = substr($param, 1);
+        $ns = strlen($param) !== 0 ? $ns = substr($param, 1) : '';
 
         return array($ns);
     }
@@ -76,10 +77,11 @@ class syntax_plugin_filelisting extends DokuWiki_Syntax_Plugin {
             $cur_ns = getNS($INFO['id']);
 
             list($ns) = $data;
-            if(empty($ns)) {
+            if (empty($ns)) {
                 $ns = $cur_ns;
             } else {
-                $ns = resolve_id($cur_ns, $ns);
+                $resolver = new PageResolver($INFO['id']);
+                $ns = $resolver->resolveId($ns);
             }
 
             /** @var helper_plugin_filelisting $hlp */

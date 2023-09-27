@@ -175,8 +175,8 @@ class helper_plugin_filelisting extends DokuWiki_Plugin {
 
         $dir = utf8_encodeFN(str_replace(':','/',$ns));
         $data = array();
-        search($data,$conf['mediadir'],array($this, 'search_media_and_namespaces'),
-               array('showmsg'=>false,'depth'=>1),$dir,1, false);
+        search($data, $conf['mediadir'], array($this, 'search_media_and_namespaces'),
+               array('showmsg' => false, 'depth' => 1), $dir, 1, false);
 
         return array_map(array($this, 'fileInfo'), $data);
     }
@@ -198,6 +198,8 @@ class helper_plugin_filelisting extends DokuWiki_Plugin {
 
             $item['link'] = '<a href="'.wl($item['id']. ':start').'">' . $item['file'] . '</a>';
         } else {
+            // consistent info needed for rendering
+            $item['isdir'] = false;
             // Prepare fileicons
             list($ext) = mimetype($item['file'],false);
             $class = preg_replace('/[^_\-a-z0-9]+/i','_',$ext);
