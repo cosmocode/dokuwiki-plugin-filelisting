@@ -406,18 +406,16 @@ jQuery(function() {
     options.loadingIcon = JSINFO.plugin.filelisting.loadingIcon;
 
     var $plugin__filelisting = jQuery('.plugin__filelisting');
-    // if base namespace is not properly set, sorting and filtering wont work
-    var ns = $plugin__filelisting.data("namespace");
-    if (ns !== undefined) {
-        options.baseNamespace = ns;
-    } else {
-        options.baseNamespace = JSINFO.namespace;
-    }
-
-    options.filterLabel = LANG.plugins.filelisting.filter_label;
-    options.deleteConfirm = LANG.plugins.filelisting.delete_confirm;
-
-    $plugin__filelisting.dokuwiki_plugin_filelisting(options);
+    $plugin__filelisting.each(function () {
+        var instanceOptions = jQuery.extend({}, options);
+        var ns = jQuery(this).data("namespace");
+        if (ns !== undefined) {
+            instanceOptions.baseNamespace = ns;
+        } else {
+            instanceOptions.baseNamespace = JSINFO.namespace;
+        }
+        jQuery(this).dokuwiki_plugin_filelisting(instanceOptions);
+    });
 
     /**
      * Fixes the tablewidths so that the table columns in header and body are exactly aligned
